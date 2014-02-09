@@ -39,6 +39,13 @@ var shapes = [
 	]
 ];
 
+Array.prototype.sum = function() {
+	var sum = 0;
+	for (var i = 0; i < this.length; i++)
+		sum += this[i];
+	return sum;		
+}
+
 function empty_matrix() {
 	return 	[[0,0,0,0],
 			[0,0,0,0],
@@ -105,6 +112,7 @@ function Shape(grid, x, y, colour) {
 			newMatrix[newMatrix.length - 1 - y] = this.grid[y];
 		}
 		this.grid = newMatrix;
+		this.bounds();
 	}
 }
 
@@ -130,7 +138,7 @@ function Tetris() {
 	}
 
 	function drawGrid() {
-		col("#000000");	
+		// col("#000000");	
 		for(var x = 0.5; x < 501; x+=BLOCK_SIZE){
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, WIDTH);
@@ -156,7 +164,7 @@ function Tetris() {
 			return;
 
 		activeShape.bounds();
-		if (e.keyCode == 37 && activeShape.x - activeShape.leftMost * BLOCK_SIZE > 0 && !willCollide(activeShape, activeShape.x - BLOCK_SIZE, activeShape.y)) {
+		if (e.keyCode == 37 && activeShape.x + activeShape.leftMost * BLOCK_SIZE > 0 && !willCollide(activeShape, activeShape.x - BLOCK_SIZE, activeShape.y)) {
 			activeShape.x -= BLOCK_SIZE;
 		} else if(e.keyCode == 39 & activeShape.x + (activeShape.rightMost + 1) * BLOCK_SIZE < WIDTH && !willCollide(activeShape, activeShape.x + BLOCK_SIZE, activeShape.y)) {
 			activeShape.x += BLOCK_SIZE;
@@ -172,11 +180,12 @@ function Tetris() {
 			return true;
 
 		var offsetX = Math.floor(x / BLOCK_SIZE);
-		var offsetY = Math.floor(y / BLOCK_SIZE);
+		var offsetY = Math.floor(y / BLOCK_SIZE) + 1;
 		for (var y = 0; y < shape.grid.length; y++)
 			for (var x = 0; x < shape.grid[y].length; x++) {
-				if (shape.grid[y][x] == 1 && backroundGrid[y + offsetY][x + offsetX])
+				if (shape.grid[y][x] == 1 && backroundGrid[y + offsetY][x + offsetX]) {
 					return true;
+				}
 			}
 		return false;
 	}
@@ -189,16 +198,25 @@ function Tetris() {
 				if (shape.grid[j][i])
 					backgroundShape.grid[j + offsetY][i+offsetX] = 1;
 			}
+
+		for (var y = 0; y < backgroundShape.grid.length; y++) 
+			if (backgroundShape.grid[y].sum() >= backgroundShape.grid[y].length) {
+				backgroundShape.grid.splice(y, 1);
+				var blank_row = [];
+				for (var x = 0; x < backgroundShape.grid[0].length; x++) {
+					blank_row.push(0);
+				}
+				backgroundShape.grid.unshift(blank_row);
+			}
 	}
 
 	function dropNewShape() {
-		activeShape = new Shape(Math.floor(Math.random() * 3), 0, 0);
+		activeShape = new Shape(Math.floor(Math.random() * 4), 0, 0);
 	}
 
 	function update() {
 		activeShape.bounds();
-		// console.log(activeShape.downMost, activeShape.leftMost, activeShape.rightMost);
-		if (willCollide(activeShape, activeShape.x, activeShape.y + BLOCK_SIZE)) {
+		if (willCollide(activeShape, activeShape.x, activeShape.y)) {
 			moveToBack(activeShape);
 			dropNewShape();
 			return;
@@ -222,7 +240,7 @@ function Tetris() {
 			update();
 		ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-		drawGrid();
+		// drawGrid();
 		drawShape(backgroundShape);
 		drawShape(activeShape);
 

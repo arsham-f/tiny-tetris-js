@@ -2,13 +2,31 @@
  <html>
  <head>
  	<style type="text/css">
+	body {
+		background-color: #000;
+		color: #FFF;
+		font-family: sans-serif;
+	}
  	canvas {
- 		border: 2px solid #000;
+ 		border: 2px solid #FFF;
+		background-color: #151515;
+		display: block;
+		margin: 0 auto;
  	}
  	</style>
  	<script type="text/javascript" src="tetris.js"></script>
  </head>
  <body>
  	<canvas id="main" width="500" height="500"></canvas>
+	<div>
+	<p>TODO:</p>
+	<p>
+		<ul>
+			<li>Use bitmasks instead of 2D array to represent blocks</li>
+			<li>Use collision detection before rotating</li>
+			<li>Improve rotations</li>
+		</ul>
+	</p>
+	</div>
  </body>
  </html>
